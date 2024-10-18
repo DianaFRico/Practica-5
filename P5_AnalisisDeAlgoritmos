@@ -114,12 +114,21 @@ struct ListaVinculada* listCrear(int tam) {
     //Creamos los nodos, los cuales nos indican cuando empieza una lista
     struct ListaVinculada* head = createNode(v);
     struct ListaVinculada* current = head;
-
-    for (int i=2; i<=tam; i++) {
-        printf("\tValor %d: ", i);
-        scanf("%d", &v);
+    int prev = v;
+    
+    for (int i = 2; i <= tam; i++) {
+        
+        do {
+            printf("\tValor %d: ", i);
+            scanf("%d", &v);
+            
+            if (v<prev)
+                printf("\t   ERROR. El valor incorrecto.\n");
+        } while (v<prev);
+        
         current->next = createNode(v);
         current = current->next;
+        prev = v;
     }
     
     return head;
@@ -142,7 +151,7 @@ int main() {
         for (int j=0; tam<1 || tam>10000-1; j++){
                 printf(" ERROR. Fuera del rango. \n\t Ingresa el tamaño:");
                 scanf("%d", &tam);
-        }   
+        }  
         
         list[i] = listCrear(tam);
     }
