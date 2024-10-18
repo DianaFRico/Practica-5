@@ -1,0 +1,156 @@
+/******************************************************************************
+Instrucciones. Recibes un arreglo de k list vinculadas, cada una está ordenada de forma ascendente.
+Fusiona todas las list vinculadas en una sola lista y retórnala.
+
+Nota: puedes representar las list como arreglos.
+
+Example 1:
+    Input: list = [[1,4,5],[1,3,4],[2,6]]
+    Output: [1,1,2,3,4,4,5,6]
+    Explanation: The linked-list are:
+    [
+      1->4->5,
+      1->3->4,
+      2->6
+    ]
+    merging them into one sorted list:
+    1->1->2->3->4->4->5->6
+
+Constraints:
+    k == list.length
+    0 <= k <= 10^4
+    0 <= list[i].length <= 500
+    -10^4 <= list[i][j] <= 10^4
+    list[i] is sorted in ascending order.
+    The sum of list[i].length will not exceed 10^4.
+
+*******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+
+//Estructura ListaVinculada.
+struct ListaVinculada {
+    int v;
+    struct ListaVinculada *next;
+};
+
+//Función, crea un nuevo nodo, para identificar cada nodo en la lista.
+struct ListaVinculada* createNode(int v) {
+    struct ListaVinculada* newNode = (struct ListaVinculada*)malloc(sizeof(struct ListaVinculada));
+    newNode->v = v;
+    newNode->next = NULL;
+    return newNode;
+}
+
+//Función, compara nodos.
+int comparar(const void* a, const void* b) {
+    struct ListaVinculada* nodeA = *(struct ListaVinculada**)a;
+    struct ListaVinculada* nodeB = *(struct ListaVinculada**)b;
+    return nodeA->v - nodeB->v;
+}
+
+//Función, fusionar listas.
+struct ListaVinculada* fusionar(struct ListaVinculada** list, int tamList) {
+    if (tamList==0)
+        return NULL;
+
+    struct ListaVinculada temporal;
+    temporal.next=NULL;
+    struct ListaVinculada* prev = &temporal;
+
+    //variable que tiene las primeros nodos.
+    struct ListaVinculada** vpila = (struct ListaVinculada**)malloc(tamList * sizeof(struct ListaVinculada*));
+    int Tam=0;
+
+    for (int i=0; i<tamList; i++) {
+        if (list[i] != NULL) {
+            vpila[Tam++]=list[i];
+        }
+    }
+
+    qsort(vpila, Tam, sizeof(struct ListaVinculada*), comparar);
+
+    while (Tam>0) {
+        struct ListaVinculada* current = vpila[0];
+        vpila[0] = vpila[--Tam];
+        qsort(vpila, Tam, sizeof(struct ListaVinculada*), comparar);
+
+        prev->next = current;
+        prev = current;
+
+        if (current->next != NULL) {
+            vpila[Tam++] = current->next;
+            qsort(vpila, Tam, sizeof(struct ListaVinculada*), comparar);
+        }
+    }
+
+    free(vpila);
+    return temporal.next;
+}
+
+//Función, imprime.
+void printList(struct ListaVinculada* head) {
+    struct ListaVinculada* current = head;
+    
+    while (current != NULL) {
+        printf("%d ", current->v);
+        
+        if (current->next != NULL)
+            printf("-> ");
+        
+        current = current->next;
+    }
+    printf("\n");
+}
+
+//Función, llenado de listas, definicion de la cabeza del nodo y los siguientes.
+struct ListaVinculada* listCrear(int tam) {
+    if (tam<=0) return NULL;
+
+    int v;
+    printf("\tValor 1: ");
+    scanf("%d", &v);
+    
+    //Creamos los nodos, los cuales nos indican cuando empieza una lista
+    struct ListaVinculada* head = createNode(v);
+    struct ListaVinculada* current = head;
+
+    for (int i=2; i<=tam; i++) {
+        printf("\tValor %d: ", i);
+        scanf("%d", &v);
+        current->next = createNode(v);
+        current = current->next;
+    }
+    
+    return head;
+}
+
+int main() {
+    int k=1, tam;
+    
+    printf("\n Numero de listas a ingresar: ");
+    scanf("%d", &k);
+
+    struct ListaVinculada** list = (struct ListaVinculada**)malloc(k * sizeof(struct ListaVinculada*));
+
+    for (int i=0; i<k; i++) {
+        
+        printf("\n LISTA %d: ", i+1);
+        printf("\n   Tamaño: ");
+        scanf("%d", &tam);
+        
+        for (int j=0; tam<1 || tam>10000-1; j++){
+                printf(" ERROR. Fuera del rango. \n\t Ingresa el tamaño:");
+                scanf("%d", &tam);
+        }   
+        
+        list[i] = listCrear(tam);
+    }
+    
+    struct ListaVinculada* listFusion = fusionar(list, k);
+
+    printf("\n Lista fusionada: ");
+    printList(listFusion);
+
+    return 0;
+}
